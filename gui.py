@@ -9,6 +9,10 @@ import pycocotools.mask as mask_utils
 import gc
 
 class AnnotationViewer:
+    '''
+    This is a simple gui made with tkinter for the annotations to be saved in coco dataset format.
+    '''
+    
     def __init__(self, master, categories):
         self.master = master
         self.master.title("Cell Annotation Tool")
