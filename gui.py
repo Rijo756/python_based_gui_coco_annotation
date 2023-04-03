@@ -63,6 +63,7 @@ class AnnotationViewer:
         # Call garbage collector to free up memory
         gc.collect()
 
+        #function variables 
         self.image = None
         self.photo_image = None
         self.annotations = {}
@@ -77,14 +78,19 @@ class AnnotationViewer:
         self.width = None
         
     def load_image(self):
+        '''
+        function to load images and current annotations (both should have same name)
+        '''
+        #reset values each time load image
         self.set_initial_val()
         image_path = filedialog.askopenfilename(title="Select Image", filetypes=[])
+
         if image_path:
             self.image = Image.open(image_path)
             self.photo_image = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image)
             self.canvas.config(width=self.image.width, height=self.image.height)
-            
+            #load the annotation 
             annotation_path = image_path.replace(".jpg", ".json").replace(".jpeg", ".json").replace(".png", ".json")
             self.annotation_path = annotation_path
 
@@ -101,11 +107,17 @@ class AnnotationViewer:
             self.populate_annotation_list()
             
     def populate_annotation_list(self):
+        '''
+        Function to show the listbox with cell ids
+        '''
         self.annotation_listbox.delete(0, tk.END)
         for annotation in self.annotations:
             self.annotation_listbox.insert(tk.END, annotation["id"])
             
     def on_annotation_select(self, event):
+        '''
+        actions to do when a cell is selected from the list box
+        '''
         selection = event.widget.curselection()
         if selection:
             index = selection[0]
@@ -116,6 +128,9 @@ class AnnotationViewer:
             self.category_combobox.set(self.category_options[self.selected_annotation['category_id']])
             
     def draw_annotation(self):
+        '''
+        To display the current annotations
+        '''
         for cids in self.canvas_points:
             self.canvas.delete(cids)
         self.canvas_points = []
@@ -131,6 +146,9 @@ class AnnotationViewer:
                 self.canvas_points.append(polygon_id)
 
     def draw_all_annotation(self):
+        '''
+        To show all the annotations along with their classes
+        '''
         for cids in self.canvas_points:
             self.canvas.delete(cids)
         self.canvas_points = []
@@ -153,6 +171,9 @@ class AnnotationViewer:
         self.category_combobox.set(self.category_options[0])
 
     def clear_all_annotation(self):
+        '''
+        To clear all the annotations from display and also clear all the previous points saved
+        '''
         for cids in self.canvas_points:
             self.canvas.delete(cids)
         self.canvas_points = []
@@ -175,6 +196,9 @@ class AnnotationViewer:
         return polygons
     
     def on_category_select(self, event):
+        '''
+        Function to change the class of the object from the dropdown box
+        '''
         selected_category = self.category_combobox.get()
         ind = self.category_options.index(selected_category)
         if ind != 0:
@@ -182,6 +206,9 @@ class AnnotationViewer:
             self.annotations[self.index]['category_id'] = ind
 
     def on_canvas_click(self, event):
+        '''
+        function which takes care of drawing the segmentation mask over image canvas
+        '''
         self.current_polygon.append(event.x)
         self.current_polygon.append(event.y)
         print ('current polygon points',self.current_polygon)
@@ -198,6 +225,9 @@ class AnnotationViewer:
         #self.current_polygon = self.canvas.create_line(self.current_points, fill="red", width=2)
 
     def on_del_polygon(self):
+        '''
+        to delete the current annotations of a cell
+        '''
         index = self.index
         self.selected_annotation = self.annotations[index]
         self.selected_annotation['segmentation'] = [[]]
@@ -206,6 +236,9 @@ class AnnotationViewer:
         self.current_polygon = []
 
     def on_save_polygon(self):
+        '''
+        to save a new annotation for a cell
+        '''
         index = self.index
         self.selected_annotation = self.annotations[index]
         self.selected_annotation['segmentation'] = [self.current_polygon]
@@ -222,6 +255,9 @@ class AnnotationViewer:
         self.current_polygon = []
 
     def create_bbox_from_poly(self):
+        '''
+        after the new segmenation is drawn to find the bbox from it
+        '''
         #create new bbox
         x_coords = self.current_polygon[::2]
         y_coords = self.current_polygon[1::2]
@@ -244,6 +280,9 @@ class AnnotationViewer:
         return bbox, area
         
     def on_add_new_cell(self):
+        '''
+        Function to add a new cell
+        '''
         all_ids = [anno['id'] for anno in self.annotations]
         if len(all_ids) == 0:
             all_ids = [0]
@@ -274,6 +313,9 @@ class AnnotationViewer:
     
 
     def on_save_results(self):
+        '''
+        To save the results of your annotations into json file
+        '''
         for i, anno in enumerate(self.annotations):
             polygon = anno['segmentation'][0]
             poly_cords = np.asarray(polygon).reshape((-1, 2))
