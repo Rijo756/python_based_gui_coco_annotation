@@ -6,6 +6,8 @@ import cv2, os
 import numpy as np
 import pycocotools.mask as mask_utils
 
+import gc
+
 class AnnotationViewer:
     def __init__(self, master, categories):
         self.master = master
@@ -54,7 +56,13 @@ class AnnotationViewer:
         self.load_button.pack()
         self.set_initial_val()
 
+        # Bind the close event to the window
+        self.master.protocol("WM_DELETE_WINDOW", self.on_close)
+
     def set_initial_val(self):
+        # Call garbage collector to free up memory
+        gc.collect()
+
         self.image = None
         self.photo_image = None
         self.annotations = {}
@@ -289,15 +297,21 @@ class AnnotationViewer:
 
 
 
-        with open( self.annotation_path.replace('.json','_updated.json'), 'w') as fout:
+        with open( self.annotation_path, 'w') as fout:
                     json.dump(self.annotations_all, fout)
 
         for anno in self.annotations:
             anno["segmentation"] = self.rle_to_polygon(anno["segmentation"])
             self.populate_annotation_list()
 
+    def on_close(self):
+        # Destroy the window and its associated widgets
+        self.master.destroy()
 
-categories = ['None', 'interphase', 'mitosis', 'post-mitosis', 'dead-cell']
+        # Call garbage collector to free up memory
+        gc.collect()
+
+categories = ['None', 'interphase', 'mitosis', 'post-mitosis']
 root = tk.Tk()
 app = AnnotationViewer(root, categories)
 root.mainloop()
