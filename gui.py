@@ -98,6 +98,10 @@ class AnnotationViewer:
             annotation_path = image_path.replace(".jpg", ".json").replace(".jpeg", ".json").replace(".png", ".json")
             self.annotation_path = annotation_path
 
+            #check if annotation file exists else create one
+            if not os.path.isfile(annotation_path):
+                cretate_blank_annotation_file(annotation_path)
+
             with open(annotation_path, "r") as f:
                 self.annotations_all = json.load(f)
 
@@ -357,6 +361,51 @@ class AnnotationViewer:
         # Call garbage collector to free up memory
         gc.collect()
 
+
+def cretate_blank_annotation_file(annotation_path):
+    '''
+    create a blank annotation file with 3 classe 
+    '''
+    imagewise_clf_result = {'info': { 
+                                                "year": 2023,
+                                                "version": "1.0",
+                                                "description": "Creating a new dataset with similar format for COCO dataset.",
+                                                "contributor": "Rijo"
+                                                },
+                                      'licences': [{
+                                                        "id": 1,
+                                                        "name": "Selfown License",
+                                                        "url": "add/yoir/url"
+                                                    }],
+                                      'categories':[{
+                                                        "id": 1,
+                                                        "name": "interphase",
+                                                        "supercategory": "cell"
+                                                        },
+                                                        {
+                                                        "id": 2,
+                                                        "name": "mitosis",
+                                                        "supercategory": "cell"
+                                                        },
+                                                        {
+                                                        "id": 3,
+                                                        "name": "post-mitosis",
+                                                        "supercategory": "cell"
+                                                    }],
+                                      'images': { 
+                                                    "id": 1,
+                                                    "width": 800,
+                                                    "height": 800,
+                                                    "file_name": annotation_path.replace('.json','').split('/')[-1] + '.png'
+                                        },
+                                      'annotations':[]
+                                      }
+
+    with open( annotation_path , 'w') as fout:
+        json.dump(imagewise_clf_result, fout)
+
+
+#set the classes here and as well in function cretate_blank_annotation_file
 categories = ['None', 'interphase', 'mitosis', 'post-mitosis']
 root = tk.Tk()
 app = AnnotationViewer(root, categories)
