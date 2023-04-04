@@ -3,7 +3,7 @@ This is a simple python based gui for annotating images like coco dataset. For e
 Usage:
 If already an annotation exists. Then rename the json file as the same as image name and load the image and the annoataions in the gui will be loaded. (the class category needed to be modified in the gui script for usage in a new dataset.
 
-If an annotation does not exist create a blank annotation by running the script create_blank_annotation.py. Also set the class categories in this script.
+If an annotation does not exist it will create a blank annotation. Also dont forget to set the class categories in this script.
 
 1. To add a new annotation.
 by clicking one by one on the boundary of the object creates an contour around the object. Then click add cell to add this object into annotation. Then by clicking on the newly added object id, the class of this object can be selected. If in between the created contour is wrong then it can be removed by clicking clear button.
